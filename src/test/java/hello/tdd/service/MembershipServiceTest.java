@@ -3,6 +3,7 @@ package hello.tdd.service;
 import hello.tdd.domain.Membership;
 import hello.tdd.domain.MembershipType;
 import hello.tdd.dto.MembershipSaveResponse;
+import hello.tdd.dto.MyMembershipResponse;
 import hello.tdd.error.MembershipErrorResult;
 import hello.tdd.error.MembershipException;
 import hello.tdd.repository.MembershipRepository;
@@ -13,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,6 +61,20 @@ public class MembershipServiceTest {
         // verify
         verify(membershipRepository, times(1)).findByUserIdAndMembershipType(userId, membershipType);
         verify(membershipRepository, times(1)).save(any(Membership.class));
+    }
+
+    @Test
+    void 멤버십목록조회() {
+        // given
+        doReturn(Arrays.asList(
+                Membership.builder().build(),
+                Membership.builder().build(),
+                Membership.builder().build()
+        )).when(membershipRepository).findAllByUserId(userId);
+        // when
+        List<MyMembershipResponse> result = target.getMembershipList(userId);
+        // then
+        assertThat(result.size()).isEqualTo(3);
     }
 
     private Membership membership() {

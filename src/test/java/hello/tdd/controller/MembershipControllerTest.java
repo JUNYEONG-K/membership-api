@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import hello.tdd.domain.MembershipType;
 import hello.tdd.dto.MembershipSaveRequest;
 import hello.tdd.dto.MembershipSaveResponse;
+import hello.tdd.dto.MyMembershipResponse;
 import hello.tdd.error.GlobalExceptionHandler;
 import hello.tdd.error.MembershipErrorResult;
 import hello.tdd.error.MembershipException;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import static hello.tdd.controller.MembershipConstants.USER_ID_HEADER;
 import static org.assertj.core.api.Assertions.*;
@@ -164,5 +166,35 @@ public class MembershipControllerTest {
 
         assertThat(response.getMembershipType()).isEqualTo(MembershipType.NAVER);
         assertThat(response.getId()).isNotNull();
+    }
+
+    @Test
+    void 멤버십목록조회_사용자식별값이헤더에없음_실패() throws Exception {
+        // given
+        String url = "/api/v1/memberships";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void 멤버십목록조회_성공() throws Exception {
+        // given
+        String url = "/api/v1/memberships";
+        Mockito.doReturn(Arrays.asList(
+                MyMembershipResponse.builder().build(),
+                MyMembershipResponse.builder().build(),
+                MyMembershipResponse.builder().build()
+        )).when(membershipService).getMembershipList("12345");
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .header(USER_ID_HEADER, "12345")
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

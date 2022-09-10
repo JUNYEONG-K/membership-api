@@ -3,6 +3,7 @@ package hello.tdd.service;
 import hello.tdd.domain.Membership;
 import hello.tdd.domain.MembershipType;
 import hello.tdd.dto.MembershipSaveResponse;
+import hello.tdd.dto.MyMembershipResponse;
 import hello.tdd.error.MembershipErrorResult;
 import hello.tdd.error.MembershipException;
 import hello.tdd.repository.MembershipRepository;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,5 +41,18 @@ public class MembershipService {
                 .id(savedMembership.getId())
                 .membershipType(savedMembership.getMembershipType())
                 .build();
+    }
+
+    public List<MyMembershipResponse> getMembershipList(String userId) {
+        List<Membership> membershipList = membershipRepository.findAllByUserId(userId);
+
+        return membershipList.stream()
+                .map(v -> MyMembershipResponse.builder()
+                        .id(v.getId())
+                        .membershipType(v.getMembershipType())
+                        .point(v.getPoint())
+                        .createdAt(v.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
