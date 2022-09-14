@@ -197,4 +197,49 @@ public class MembershipControllerTest {
         // then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    void 멤버십상세조회실패_사용자식별값이헤더에없음() throws Exception {
+        // given
+        String url = "/api/v1/memberships";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void 멤버십상세조회실패_멤버십이존재하지않음() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1";
+        Mockito.doThrow(new MembershipException(MembershipErrorResult.MEMBERSHIP_NOT_FOUND))
+                .when(membershipService)
+                .getMembership(-1L, "12345");
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .header(USER_ID_HEADER, "12345")
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void 멤버십상세조회성공() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1";
+        Mockito.doReturn(
+                MyMembershipResponse.builder().build()
+        ).when(membershipService).getMembership(-1L, "12345");
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.get(url)
+                        .header(USER_ID_HEADER, "12345")
+                        .param("membershipType", MembershipType.NAVER.name())
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }

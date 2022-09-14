@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +29,7 @@ public class MembershipServiceTest {
     private final String userId = "userId";
     private final MembershipType membershipType = MembershipType.NAVER;
     private final Integer point = 10000;
+    private final Long membershipId = -1L;
 
     // test 대상
     @InjectMocks    // @Mock 또는 @Spy로 생성된 가짜 객체를 자동으로 주입시켜주는 어노테이션
@@ -84,5 +86,36 @@ public class MembershipServiceTest {
                 .point(point)
                 .membershipType(membershipType)
                 .build();
+    }
+
+    @Test
+    void 멤버십상세조회실패_존재하지않음() {
+        // given
+        doReturn(Optional.empty()).when(membershipRepository).findById(membershipId);
+        // when
+        MembershipException result = assertThrows(MembershipException.class, () -> target.getMembership(membershipId, userId));
+        // then
+        assertThat(result.getErrorResult()).isEqualTo(MembershipErrorResult.MEMBERSHIP_NOT_FOUND);
+    }
+
+    @Test
+    void 멤버십상세조회실패_본인아님() {
+        // given
+        doReturn(Optional.of(membership())).when(membershipRepository).findById(membershipId);
+        // when
+        MembershipException result = assertThrows(MembershipException.class, () -> target.getMembership(membershipId, "not owner"));
+        // then
+        assertThat(result.getErrorResult()).isEqualTo(MembershipErrorResult.NOT_MEMBERSHIP_OWNER);
+    }
+
+    @Test
+    void 멤버십상세조회성공() {
+        // given
+        doReturn(Optional.of(membership())).when(membershipRepository).findById(membershipId);
+        // when
+        MyMembershipResponse result = target.getMembership(membershipId, userId);
+        // then
+        assertThat(result.getMembershipType()).isEqualTo(MembershipType.NAVER);
+        assertThat(result.getPoint()).isEqualTo(point);
     }
 }
