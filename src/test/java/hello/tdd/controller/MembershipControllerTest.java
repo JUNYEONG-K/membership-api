@@ -242,4 +242,29 @@ public class MembershipControllerTest {
         // then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    void 멤버십삭제실패_사용자식별값이헤어데없음() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.delete(url)
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void 멤버십삭제성공() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.delete(url)
+                        .header(USER_ID_HEADER, "12345")
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
 }

@@ -43,4 +43,12 @@ public class MembershipController {
             @PathVariable Long membershipId) {
         return ResponseEntity.ok(membershipService.getMembership(membershipId, userId));
     }
+
+    @DeleteMapping("/api/v1/memberships/{id}")
+    public ResponseEntity<Void> removeMembership(
+            @RequestHeader(USER_ID_HEADER) String userId,
+            @PathVariable Long id) {
+        membershipService.removeMembership(id, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

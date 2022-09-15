@@ -95,5 +95,22 @@ public class MembershipRepositoryTest {
         // then
         assertThat(result.size()).isEqualTo(2);
     }
+
+    @Test
+    void 멤버십추가후삭제() {
+        // given
+        Membership naverMembership = Membership.builder()
+                .userId("userId")
+                .membershipType(MembershipType.NAVER)
+                .point(10000)
+                .build();
+        Membership savedMembership = membershipRepository.save(naverMembership);
+        // when
+        membershipRepository.deleteById(savedMembership.getId());
+        List<Membership> memberships = membershipRepository.findAll();
+        // then
+        assertThat(memberships.size()).isEqualTo(0);
+
+    }
 }
 
