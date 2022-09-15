@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class MembershipService {
 
     private final MembershipRepository membershipRepository;
+    private final PointService ratePointService;
 
     public MembershipSaveResponse addMembership(String userId, MembershipType membershipType, Integer point) {
         // 중복 멤버십 존재 여부 체크
@@ -80,5 +81,17 @@ public class MembershipService {
             throw new MembershipException(MembershipErrorResult.NOT_MEMBERSHIP_OWNER);
         }
         membershipRepository.deleteById(membershipId);
+    }
+
+    public void accumulateMembershipPoint(Long membershipId, String userId, int amount) {
+        Optional<Membership> optionalMembership = membershipRepository.findById(membershipId);
+        Membership membership = optionalMembership.orElseThrow(() -> new MembershipException(MembershipErrorResult.MEMBERSHIP_NOT_FOUND));
+        if (!membership.getUserId().equals(userId)) {
+            throw new MembershipException(MembershipErrorResult.NOT_MEMBERSHIP_OWNER);
+        }
+
+        int additionalAmount = ratePointService.calculateAmount(amount);
+
+        membership.setPoint(additionalAmount + membership.getPoint());
     }
 }

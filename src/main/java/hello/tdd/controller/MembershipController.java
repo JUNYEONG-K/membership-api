@@ -1,5 +1,6 @@
 package hello.tdd.controller;
 
+import hello.tdd.dto.MembershipAddRequest;
 import hello.tdd.dto.MembershipSaveRequest;
 import hello.tdd.dto.MembershipSaveResponse;
 import hello.tdd.dto.MyMembershipResponse;
@@ -50,5 +51,14 @@ public class MembershipController {
             @PathVariable Long id) {
         membershipService.removeMembership(id, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/api/v1/memberships/{id}/accumulate")
+    public ResponseEntity<Void> accumulateMembershipPoint(
+            @RequestHeader(USER_ID_HEADER) String userId,
+            @PathVariable Long id,
+            @RequestBody @Valid MembershipAddRequest membershipAddRequest) {
+        membershipService.accumulateMembershipPoint(id, userId, membershipAddRequest.getPoint());
+        return ResponseEntity.ok().build();
     }
 }

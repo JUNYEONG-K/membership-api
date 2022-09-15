@@ -2,6 +2,7 @@ package hello.tdd.controller;
 
 import com.google.gson.Gson;
 import hello.tdd.domain.MembershipType;
+import hello.tdd.dto.MembershipAddRequest;
 import hello.tdd.dto.MembershipSaveRequest;
 import hello.tdd.dto.MembershipSaveResponse;
 import hello.tdd.dto.MyMembershipResponse;
@@ -266,5 +267,55 @@ public class MembershipControllerTest {
         );
         // then
         resultActions.andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    void 멤버십적립실패_사용자식별값이헤더에없음() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1/accumulate";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.post(url)
+                        .content(gson.toJson(membershipAddRequest(10000)))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void 멤버십적립실패_포인트가음수() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1/accumulate";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.post(url)
+                        .header(USER_ID_HEADER, "12345")
+                        .content(gson.toJson(membershipAddRequest(-1)))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void 멤버십적립성공() throws Exception {
+        // given
+        String url = "/api/v1/memberships/-1/accumulate";
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.post(url)
+                        .header(USER_ID_HEADER, "12345")
+                        .content(gson.toJson(membershipAddRequest(10000)))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    private MembershipAddRequest membershipAddRequest(Integer point) {
+        return MembershipAddRequest.builder()
+                .point(point)
+                .build();
     }
 }

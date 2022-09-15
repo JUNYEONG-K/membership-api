@@ -37,6 +37,8 @@ public class MembershipServiceTest {
     // 의존 객체
     @Mock   // Mock 객체를 만들어 반환해주는 어노테이션
     private MembershipRepository membershipRepository;
+    @Mock
+    private RatePointService ratePointService;
 
     @Test
     void 멤버십등록실패_이미존재함() {
@@ -147,5 +149,34 @@ public class MembershipServiceTest {
         target.removeMembership(membershipId, userId);
         // then
 
+    }
+
+    @Test
+    void 멤버십적립실패_존재하지않음() {
+        // given
+        doReturn(Optional.empty()).when(membershipRepository).findById(membershipId);
+        // when
+        MembershipException result = assertThrows(MembershipException.class, () -> target.accumulateMembershipPoint(membershipId, userId, 10000));
+        // then
+        assertThat(result.getErrorResult()).isEqualTo(MembershipErrorResult.MEMBERSHIP_NOT_FOUND);
+    }
+
+    @Test
+    void 멤버십적립실패_본인이아님() {
+        // given
+        doReturn(Optional.of(membership())).when(membershipRepository).findById(membershipId);
+        // when
+        MembershipException result = assertThrows(MembershipException.class, () -> target.accumulateMembershipPoint(membershipId, "notowner", 10000));
+        // then
+        assertThat(result.getErrorResult()).isEqualTo(MembershipErrorResult.NOT_MEMBERSHIP_OWNER);
+    }
+
+    @Test
+    void 멤버십적립성공() {
+        // given
+        doReturn(Optional.of(membership())).when(membershipRepository).findById(membershipId);
+        // when
+        target.accumulateMembershipPoint(membershipId, userId, 10000);
+        // then
     }
 }
