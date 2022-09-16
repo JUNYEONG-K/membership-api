@@ -1,10 +1,10 @@
 package hello.tdd.controller;
 
 import com.google.gson.Gson;
-import hello.tdd.dto.MemberSaveRequest;
-import hello.tdd.dto.MemberSaveResponse;
+import hello.tdd.dto.MemberLoginRequest;
+import hello.tdd.dto.MemberLoginResponse;
 import hello.tdd.error.GlobalExceptionHandler;
-import hello.tdd.service.MemberService;
+import hello.tdd.service.SessionLoginService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +13,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,12 +25,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.assertj.core.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class MemberControllerTest {
+public class MemberLoginControllerTest {
 
     @InjectMocks
-    private MemberController target;
+    private MemberLoginController target;
+
     @Mock
-    private MemberService memberService;
+    private SessionLoginService sessionLoginService;
 
     private MockMvc mockMvc;
     private Gson gson;
@@ -42,19 +45,19 @@ public class MemberControllerTest {
     }
 
     @Test
-    void MockMVC가Null아님() throws Exception {
+    void MockMvc가Null아님() throws Exception {
         assertThat(target).isNotNull();
         assertThat(mockMvc).isNotNull();
     }
 
     @Test
-    void 멤버등록실패_이메일형식이아님() throws Exception {
+    void 로그인실패_이메일형식아님() throws Exception{
         // given
-        String url = "/api/v1/members";
+        String url = "/api/v1/member/login";
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
-                        .content(gson.toJson(memberSaveRequest("test", "notemail", "pwd")))
+                        .content(gson.toJson(memberLoginRequest("not email", "1234")))
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
@@ -62,13 +65,13 @@ public class MemberControllerTest {
     }
 
     @Test
-    void 멤버등록실패_이름이null() throws Exception {
+    void 로그인실패_이메일null() throws Exception {
         // given
-        String url = "/api/v1/members";
+        String url = "/api/v1/member/login";
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
-                        .content(gson.toJson(memberSaveRequest(null, "test@naver.com", "1234")))
+                        .content(gson.toJson(memberLoginRequest(null, "1234")))
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
@@ -76,13 +79,13 @@ public class MemberControllerTest {
     }
 
     @Test
-    void 멤버등록실패_이메일이null() throws Exception {
+    void 로그인실패_비밀번호null() throws Exception {
         // given
-        String url = "/api/v1/members";
+        String url = "/api/v1/member/login";
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
-                        .content(gson.toJson(memberSaveRequest("test", null, "1234")))
+                        .content(gson.toJson(memberLoginRequest("test@naver.com", null)))
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
@@ -90,42 +93,28 @@ public class MemberControllerTest {
     }
 
     @Test
-    void 멤버등록실패_비밀번호null() throws Exception {
+    void 로그인성공() throws Exception {
         // given
-        String url = "/api/v1/members";
-        // when
-        ResultActions resultActions = mockMvc.perform(
-                MockMvcRequestBuilders.post(url)
-                        .content(gson.toJson(memberSaveRequest("test", "test@naver.com", null)))
-                        .contentType(MediaType.APPLICATION_JSON)
-        );
-        // then
-        resultActions.andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
-
-    @Test
-    void 멤버등록성공() throws Exception {
-        // given
-        String url = "/api/v1/members";
-        MemberSaveResponse memberSaveResponse = MemberSaveResponse.builder()
-                .id(-1L)
+        String url = "/api/v1/member/login";
+        MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
+                .email("test@naver.com")
                 .build();
-        Mockito.doReturn(memberSaveResponse).when(memberService).addMember("test", "test@naver.com", "1234");
+        Mockito.doReturn(memberLoginResponse).when(sessionLoginService).login("test@naver.com", "1234");
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
-                        .content(gson.toJson(memberSaveRequest("test", "test@naver.com", "1234")))
+                        .content(gson.toJson(memberLoginRequest("test@naver.com", "1234")))
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
-        resultActions.andExpect(MockMvcResultMatchers.status().isCreated());
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    private MemberSaveRequest memberSaveRequest(String name, String email, String pwd) {
-        return MemberSaveRequest.builder()
-                .name(name)
+    private MemberLoginRequest memberLoginRequest(String email, String pwd) {
+        return MemberLoginRequest.builder()
                 .email(email)
                 .password(pwd)
                 .build();
     }
 }
+

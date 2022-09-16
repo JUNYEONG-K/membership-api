@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 public enum MemberErrorResult {
 
     DUPLICATED_MEMBER_REGISTER(HttpStatus.BAD_REQUEST, "Duplicated Member Register Request"),
+    NO_MEMBER_ID(HttpStatus.BAD_REQUEST, "Member ID doesn't exist"),
+    NO_PWD_CORRECT(HttpStatus.BAD_REQUEST, "Password doesn't correct"),
     ;
 
     private final HttpStatus httpStatus;
