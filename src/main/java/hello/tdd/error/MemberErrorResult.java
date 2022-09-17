@@ -11,6 +11,7 @@ public enum MemberErrorResult {
     DUPLICATED_MEMBER_REGISTER(HttpStatus.BAD_REQUEST, "Duplicated Member Register Request"),
     NO_MEMBER_ID(HttpStatus.BAD_REQUEST, "Member ID doesn't exist"),
     NO_PWD_CORRECT(HttpStatus.BAD_REQUEST, "Password doesn't correct"),
+    NO_TOKEN(HttpStatus.BAD_REQUEST, "No Token");
     ;
 
     private final HttpStatus httpStatus;

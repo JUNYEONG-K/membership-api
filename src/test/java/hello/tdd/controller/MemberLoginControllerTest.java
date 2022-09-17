@@ -4,20 +4,16 @@ import com.google.gson.Gson;
 import hello.tdd.dto.MemberLoginRequest;
 import hello.tdd.dto.MemberLoginResponse;
 import hello.tdd.error.GlobalExceptionHandler;
-import hello.tdd.service.SessionLoginService;
-import org.assertj.core.api.Assertions;
+import hello.tdd.service.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -33,7 +29,7 @@ public class MemberLoginControllerTest {
     private MemberLoginController target;
 
     @Mock
-    private SessionLoginService sessionLoginService;
+    private LoginService loginService;
 
     private MockMvc mockMvc;
     private Gson gson;

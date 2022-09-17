@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SessionLoginService {
+public class LoginService {
 
     private final MemberRepository memberRepository;
 
-    public Member getMember(String email, String pwd) {
+    public Member login(String email, String pwd) {
         Member member = memberRepository.findByEmail(email);
-        // member id 존재 X -> 에러
+        // member email 존재 X -> 에러
         if (member == null) {
             throw new MemberException(MemberErrorResult.NO_MEMBER_ID);
         }

@@ -21,7 +21,7 @@ public class LoginServiceTest {
     private final String pwd = "1234";
 
     @InjectMocks
-    private SessionLoginService target;
+    private LoginService target;
     @Mock
     private MemberRepository memberRepository;
 
@@ -30,7 +30,7 @@ public class LoginServiceTest {
         // given
         Mockito.doReturn(null).when(memberRepository).findByEmail(email);
         // when
-        MemberException result = assertThrows(MemberException.class, () -> target.getMember(email, pwd));
+        MemberException result = assertThrows(MemberException.class, () -> target.login(email, pwd));
         // then
         assertThat(result.getErrorResult()).isEqualTo(MemberErrorResult.NO_MEMBER_ID);
     }
@@ -40,7 +40,7 @@ public class LoginServiceTest {
         // given
         Mockito.doReturn(member()).when(memberRepository).findByEmail(email);
         // when
-        MemberException result = assertThrows(MemberException.class, () -> target.getMember(email, "no correct pwd"));
+        MemberException result = assertThrows(MemberException.class, () -> target.login(email, "no correct pwd"));
         // then
         assertThat(result.getErrorResult()).isEqualTo(MemberErrorResult.NO_PWD_CORRECT);
     }
@@ -50,7 +50,7 @@ public class LoginServiceTest {
         // given
         Mockito.doReturn(member()).when(memberRepository).findByEmail(email);
         // when
-        Member member = target.getMember(email, pwd);
+        Member member = target.login(email, pwd);
         // then
         assertThat(member.getId()).isNotNull();
         assertThat(member.getId()).isEqualTo(member().getId());

@@ -1,5 +1,6 @@
 package hello.tdd.error;
 
+import io.jsonwebtoken.JwtException;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -47,6 +49,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         log.warn("Exception occur: ", ex);
         return this.makeErrorResponseEntity(MembershipErrorResult.UNKNOWN_EXCEPTION);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler({JwtException.class})
+    public ErrorResponse handleJwtException(JwtException ex) {
+        log.warn("JwtException occur: ", ex);
+        return new ErrorResponse("401", ex.getMessage());
     }
 
     private ResponseEntity<Object> makeErrorResponseEntity(String errorDescription) {
