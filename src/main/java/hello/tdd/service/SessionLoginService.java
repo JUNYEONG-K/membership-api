@@ -15,7 +15,7 @@ public class SessionLoginService {
 
     private final MemberRepository memberRepository;
 
-    public Long login(String email, String pwd) {
+    public Member getMember(String email, String pwd) {
         Member member = memberRepository.findByEmail(email);
         // member id 존재 X -> 에러
         if (member == null) {
@@ -26,6 +26,6 @@ public class SessionLoginService {
             throw new MemberException(MemberErrorResult.NO_PWD_CORRECT);
         }
         // 세션 저장소에 저장할 사용자 pk
-        return member.getId();
+        return member;
     }
 }

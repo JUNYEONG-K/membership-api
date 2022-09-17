@@ -32,8 +32,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({MembershipException.class})
-    public ResponseEntity<ErrorResponse> handleRestApiException(MembershipException ex) {
+    public ResponseEntity<ErrorResponse> handleMembershipException(MembershipException ex) {
         log.warn("MembershipException occur: ", ex);
+        return this.makeErrorResponseEntity(ex.getErrorResult());
+    }
+
+    @ExceptionHandler({MemberException.class})
+    public ResponseEntity<ErrorResponse> handleMemberException(MemberException ex) {
+        log.warn("MemberException occur: ", ex);
         return this.makeErrorResponseEntity(ex.getErrorResult());
     }
 
@@ -48,6 +54,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponse(HttpStatus.BAD_REQUEST.toString(), errorDescription));
     }
     private ResponseEntity<ErrorResponse> makeErrorResponseEntity(MembershipErrorResult errorResult) {
+        return ResponseEntity.status(errorResult.getHttpStatus())
+                .body(new ErrorResponse(errorResult.name(), errorResult.getMessage()));
+    }
+    private ResponseEntity<ErrorResponse> makeErrorResponseEntity(MemberErrorResult errorResult) {
         return ResponseEntity.status(errorResult.getHttpStatus())
                 .body(new ErrorResponse(errorResult.name(), errorResult.getMessage()));
     }

@@ -1,5 +1,6 @@
 package hello.tdd.controller;
 
+import hello.tdd.domain.Member;
 import hello.tdd.dto.MemberLoginRequest;
 import hello.tdd.dto.MemberLoginResponse;
 import hello.tdd.service.SessionLoginService;
@@ -19,17 +20,17 @@ public class MemberLoginController {
 
     private final SessionLoginService sessionLoginService;
 
-    @PostMapping("/api/v1/member/login")
+    @PostMapping("/api/v1/member/sessionlogin")
     public ResponseEntity<MemberLoginResponse> login(@RequestBody @Valid MemberLoginRequest loginRequest, HttpServletRequest request) {
 
-        Long loginId = sessionLoginService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        Member member = sessionLoginService.getMember(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpSession session = request.getSession();
         if (!session.isNew()) {
             session.invalidate();
             session = request.getSession();
         }
-        session.setAttribute("loginId", loginId);
+        session.setAttribute("loginId", member.getId());
 
         MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
                 .email(loginRequest.getEmail())

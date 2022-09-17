@@ -22,6 +22,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +55,7 @@ public class MemberLoginControllerTest {
     @Test
     void 로그인실패_이메일형식아님() throws Exception{
         // given
-        String url = "/api/v1/member/login";
+        String url = "/api/v1/member/sessionlogin";
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
@@ -67,7 +69,7 @@ public class MemberLoginControllerTest {
     @Test
     void 로그인실패_이메일null() throws Exception {
         // given
-        String url = "/api/v1/member/login";
+        String url = "/api/v1/member/sessionlogin";
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
@@ -81,7 +83,7 @@ public class MemberLoginControllerTest {
     @Test
     void 로그인실패_비밀번호null() throws Exception {
         // given
-        String url = "/api/v1/member/login";
+        String url = "/api/v1/member/sessionlogin";
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
@@ -95,11 +97,8 @@ public class MemberLoginControllerTest {
     @Test
     void 로그인성공() throws Exception {
         // given
-        String url = "/api/v1/member/login";
-        MemberLoginResponse memberLoginResponse = MemberLoginResponse.builder()
-                .email("test@naver.com")
-                .build();
-        Mockito.doReturn(memberLoginResponse).when(sessionLoginService).login("test@naver.com", "1234");
+        String url = "/api/v1/member/sessionlogin";
+
         // when
         ResultActions resultActions = mockMvc.perform(
                 MockMvcRequestBuilders.post(url)
@@ -108,6 +107,12 @@ public class MemberLoginControllerTest {
         );
         // then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk());
+
+        MemberLoginResponse response = gson.fromJson(resultActions.andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), MemberLoginResponse.class);
+
+        assertThat(response.getEmail()).isEqualTo("test@naver.com");
     }
 
     private MemberLoginRequest memberLoginRequest(String email, String pwd) {

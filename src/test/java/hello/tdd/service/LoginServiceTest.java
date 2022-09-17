@@ -4,7 +4,6 @@ import hello.tdd.domain.Member;
 import hello.tdd.error.MemberErrorResult;
 import hello.tdd.error.MemberException;
 import hello.tdd.repository.MemberRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +30,7 @@ public class LoginServiceTest {
         // given
         Mockito.doReturn(null).when(memberRepository).findByEmail(email);
         // when
-        MemberException result = assertThrows(MemberException.class, () -> target.login(email, pwd));
+        MemberException result = assertThrows(MemberException.class, () -> target.getMember(email, pwd));
         // then
         assertThat(result.getErrorResult()).isEqualTo(MemberErrorResult.NO_MEMBER_ID);
     }
@@ -41,7 +40,7 @@ public class LoginServiceTest {
         // given
         Mockito.doReturn(member()).when(memberRepository).findByEmail(email);
         // when
-        MemberException result = assertThrows(MemberException.class, () -> target.login(email, "no correct pwd"));
+        MemberException result = assertThrows(MemberException.class, () -> target.getMember(email, "no correct pwd"));
         // then
         assertThat(result.getErrorResult()).isEqualTo(MemberErrorResult.NO_PWD_CORRECT);
     }
@@ -51,9 +50,12 @@ public class LoginServiceTest {
         // given
         Mockito.doReturn(member()).when(memberRepository).findByEmail(email);
         // when
-        Long loginId = target.login(email, pwd);
+        Member member = target.getMember(email, pwd);
         // then
-        assertThat(loginId).isEqualTo(-1L);
+        assertThat(member.getId()).isNotNull();
+        assertThat(member.getId()).isEqualTo(member().getId());
+        assertThat(member.getEmail()).isEqualTo(member().getEmail());
+        assertThat(member.getName()).isEqualTo(member().getName());
     }
 
     private Member member() {

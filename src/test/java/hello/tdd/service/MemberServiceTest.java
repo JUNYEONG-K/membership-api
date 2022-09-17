@@ -53,7 +53,7 @@ public class MemberServiceTest {
 
     private Member member() {
         return Member.builder()
-                .id(-1L)
+                .id(memberId)
                 .name(name)
                 .email(email)
                 .password(pwd)
