@@ -11,4 +11,5 @@ public class MembershipSaveResponse {
 
     private Long id;
     private MembershipType membershipType;
+    private Integer amountPoint;
 }

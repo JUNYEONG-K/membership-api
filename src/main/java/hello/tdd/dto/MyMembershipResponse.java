@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MyMembershipResponse {
 
-    private final Long id;
+    private final String memberEmail;
+    private final Long membershipId;
     private final MembershipType membershipType;
     private final Integer point;
     private final LocalDateTime createdAt;

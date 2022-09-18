@@ -50,7 +50,7 @@ public class MembershipService {
 
         return membershipList.stream()
                 .map(v -> MyMembershipResponse.builder()
-                        .id(v.getId())
+                        .membershipId(v.getId())
                         .membershipType(v.getMembershipType())
                         .point(v.getPoint())
                         .createdAt(v.getCreatedAt())
@@ -67,7 +67,7 @@ public class MembershipService {
         }
 
         return MyMembershipResponse.builder()
-                .id(membership.getId())
+                .membershipId(membership.getId())
                 .membershipType(membership.getMembershipType())
                 .point(membership.getPoint())
                 .createdAt(membership.getCreatedAt())
@@ -92,6 +92,6 @@ public class MembershipService {
 
         int additionalAmount = ratePointService.calculateAmount(amount);
 
-        membership.setPoint(additionalAmount + membership.getPoint());
+        membership.accumulatePoint(additionalAmount + membership.getPoint());
     }
 }

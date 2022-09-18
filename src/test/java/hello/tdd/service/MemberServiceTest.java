@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -58,5 +60,28 @@ public class MemberServiceTest {
                 .email(email)
                 .password(pwd)
                 .build();
+    }
+
+    @Test
+    void 멤버상세조회실패_존재하지않음() {
+        // given
+        doReturn(Optional.empty()).when(memberRepository).findById(memberId);
+        // when
+        MemberException result = assertThrows(MemberException.class, () -> target.getMember(memberId));
+        // then
+        assertThat(result.getErrorResult()).isEqualTo(MemberErrorResult.MEMBER_NOT_FOUND);
+    }
+
+    @Test
+    void 멤버상세조회성공() {
+        // given
+        doReturn(Optional.of(member())).when(memberRepository).findById(memberId);
+        // when
+        Member result = target.getMember(memberId);
+        // then
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getName()).isEqualTo(name);
+        assertThat(result.getEmail()).isEqualTo(email);
+        assertThat(result.getPassword()).isEqualTo(pwd);
     }
 }

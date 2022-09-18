@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-public class aopOrder {
+public class OrderedAop {
 
     @Aspect
     @Order(2)

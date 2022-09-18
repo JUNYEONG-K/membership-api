@@ -25,7 +25,7 @@ public class Membership {
     @Enumerated(EnumType.STRING)
     private MembershipType membershipType;
 
-    @Setter
+//    @Setter
     @Column(nullable = false)
     @ColumnDefault("0")
     private Integer point;
@@ -40,4 +40,8 @@ public class Membership {
     @ManyToOne(fetch = FetchType.LAZY)  // 기본 = EAGER, N+1 문제 등의 이슈 때문에 가급적 지연로딩을 사용한다.
     @JoinColumn(name = "member_id") // 외래 키 지정(디비 컬럼명)
     private Member member;  // 참조 객체
+
+    public void accumulatePoint(Integer point) {
+        this.point = point;
+    }
 }
