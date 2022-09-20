@@ -17,6 +17,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final EncryptService encryptService;
 
     public MemberSaveResponse addMember(String name, String email, String pwd) {
         // 중복 멤버 존재 여부 체크
@@ -26,10 +27,11 @@ public class MemberService {
             throw new MemberException(MemberErrorResult.DUPLICATED_MEMBER_REGISTER);
         }
         // 중복 멤버십 없으면 저장!
+        String password = encryptService.getEncrypt(pwd);
         Member member = Member.builder()
                 .name(name)
                 .email(email)
-                .password(pwd)
+                .password(password)
                 .build();
 
         Member savedMember = memberRepository.save(member);
